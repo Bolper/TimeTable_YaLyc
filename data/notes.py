@@ -1,10 +1,11 @@
 import datetime
 import sqlalchemy as sa
+from sqlalchemy_serializer import SerializerMixin
 
 from .__db_session import SqlAlchemyBase
 
 
-class Note(SqlAlchemyBase):
+class Note(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'notes'
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
@@ -16,3 +17,12 @@ class Note(SqlAlchemyBase):
     is_finished = sa.Column(sa.Boolean, nullable=True, default=False)
     modified_date = sa.Column(sa.DateTime, default=datetime.datetime.now())
     user_id = sa.Column(sa.Integer, sa.ForeignKey("users.id"))
+
+    def __str__(self) -> str:
+        return f'<job {self.id}: {self.job}>'
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+    def __int__(self) -> int:
+        return self.id

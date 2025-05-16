@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Flask, request, url_for, render_template, redirect, abort, make_response, jsonify
 from flask_login import LoginManager, logout_user, login_required, login_user, current_user
 
@@ -7,6 +9,7 @@ db_session.global_init("db/database.sqlite")
 
 from data.users import User
 from data.notes import Note
+from api import notes as notes_api
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -143,4 +146,6 @@ def jobs_delete(_id):
 
 
 if __name__ == '__main__':
+    app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=365)
+    app.register_blueprint(notes_api.blueprint)
     app.run(port=8080, host='127.0.0.1', debug=True)
