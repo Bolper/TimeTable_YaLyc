@@ -6,13 +6,14 @@ from data import __db_session as db_session
 db_session.global_init("db/database.sqlite")
 
 from data.users import User
+from data.notes import Note
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-from forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, NoteForm
 
 
 @login_manager.user_loader
@@ -37,11 +38,12 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect("/")
+            return redirect("/show/notes")
         return render_template('_base_form.html',
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('_base_form.html', title='Авторизация', form=form)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def reqister():
@@ -75,5 +77,35 @@ def logout():
     return redirect("/")
 
 
+@app.route('/notes', methods=['GET', 'POST'])
+@login_required
+def add_notes():
+    form = NoteForm()
+    if request.method == 'GET':
+        return render_template('_base_form.html', title='Adding job', form=form)
+    db_sess = db_session.create_session()
+    if form.validate_on_submit() and request.method == 'POST':
+        note = Note(
+            user_id=0
+        )
+        form.populate_obj(note)
+        db_sess.merge(note)
+        db_sess.commit()
+        return redirect('/show/notes')
+    return render_template('_base_form.html', title='Adding job', form=form)
+
+
+@app.route('/show/notes')
+@login_required
+def show_notes():
+    db_sess = db_session.create_session()
+    notes = db_sess.query(Note).all()  # доделать
+    params = {
+        'title': 'Notes',
+        'notes': notes
+    }
+    return render_template('notes.html', **params)
+
+
 if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1')
+    app.run(port=8080, host='127.0.0.1', debug=True)

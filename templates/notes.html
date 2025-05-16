@@ -1,0 +1,83 @@
+{% extends "_base.html" %}
+
+{% block content %}
+    <h3 class="text-center">{{ title }}</h3>
+    {% if current_user.is_authenticated %}
+        <a href="/notes" class="btn btn-secondary">Add note</a>
+    {% endif %}
+    <table class="table">
+        {% for note in notes %}
+            <div>
+                <thead>
+                    <tr>
+                        <td colspan="6">
+                            <h4>Action # {{ note.id }}</h4>
+                            {% if current_user.is_authenticated %}
+                                <div>
+                                    <a href="/notes/{{ note.id }}" class="btn btn-warning">
+                                        Edit
+                                    </a>
+                                    <a onclick="showDeleteModal({{ note.id }}, '{{ note.name }}')" class="btn btn-danger">
+                                        Remove
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr class="table-secondary">
+                        <th>Name of note</th>
+                        <th class="text-center">Description</th>
+                        <th class="text-center">Position</th>
+                        <th class="text-center">Starts</th>
+                        <th class="text-center">Ends</th>
+                        <th class="text-center">Is finished</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ note.name }}</td>
+                        <td class="text-center">{{ note.description }}</td>
+                        <td class="text-center">{{ note.position }} hours</td>
+                        <td class="text-center">{{ note.starts }}</td>
+                        <td class="text-center">{{ note.ends }}</td>
+                        {% if note.is_finished %}
+                            <td class="table-success text-center">Is finished</td>
+                        {% else %}
+                            <td class="table-danger text-center">Is not finished</td>
+                        {% endif %}
+                    </tr>
+                </tbody>
+
+            </div>
+        {% endfor %}
+    </table>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-6" id="deleteModalLabel">Removing job</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <p>You really want to remove <strong>Action # <span id="deleteModalId">%id%</span></strong></p>
+              <p>"<i id="deleteModalTitle"></i>" ?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <a id="deleteModalBtn" href="" class="btn btn-danger">REMOVE</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        function showDeleteModal(id, title) {
+            document.getElementById('deleteModalId').innerText = '' + id;
+            document.getElementById('deleteModalTitle').innerText = title;
+            document.getElementById('deleteModalBtn').setAttribute('href', `/notes_delete/${id}`);
+            deleteModal.show();
+        }
+    </script>
+{% endblock %}
