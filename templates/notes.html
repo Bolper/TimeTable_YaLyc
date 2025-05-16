@@ -17,7 +17,7 @@
                                     <a href="/notes/{{ note.id }}" class="btn btn-warning">
                                         Edit
                                     </a>
-                                    <a onclick="showDeleteModal({{ note.id }}, '{{ note.name }}')" class="btn btn-danger">
+                                    <a href="/notes_delete/{{ note.id }}" class="btn btn-danger">
                                         Remove
                                     </a>
                                 </div>
@@ -51,33 +51,4 @@
             </div>
         {% endfor %}
     </table>
-
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-6" id="deleteModalLabel">Removing job</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <p>You really want to remove <strong>Action # <span id="deleteModalId">%id%</span></strong></p>
-              <p>"<i id="deleteModalTitle"></i>" ?</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <a id="deleteModalBtn" href="" class="btn btn-danger">REMOVE</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <script>
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        function showDeleteModal(id, title) {
-            document.getElementById('deleteModalId').innerText = '' + id;
-            document.getElementById('deleteModalTitle').innerText = title;
-            document.getElementById('deleteModalBtn').setAttribute('href', `/notes_delete/${id}`);
-            deleteModal.show();
-        }
-    </script>
 {% endblock %}

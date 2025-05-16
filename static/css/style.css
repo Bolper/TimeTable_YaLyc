@@ -33,8 +33,3 @@ h4 {
     padding-left: 20px;
     color: #555555;
 }
-
-h2.emblem::before {
-    content: url(http://127.0.0.1:8080/static/img/MARS-2-7.png);
-    padding-right: 10px;
-}

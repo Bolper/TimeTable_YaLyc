@@ -1,5 +1,5 @@
-from flask import Flask, request, url_for, render_template, redirect
-from flask_login import LoginManager, logout_user, login_required, login_user
+from flask import Flask, request, url_for, render_template, redirect, abort, make_response, jsonify
+from flask_login import LoginManager, logout_user, login_required, login_user, current_user
 
 from data import __db_session as db_session
 
@@ -86,7 +86,7 @@ def add_notes():
     db_sess = db_session.create_session()
     if form.validate_on_submit() and request.method == 'POST':
         note = Note(
-            user_id=0
+            user_id=current_user.id
         )
         form.populate_obj(note)
         db_sess.merge(note)
@@ -99,12 +99,47 @@ def add_notes():
 @login_required
 def show_notes():
     db_sess = db_session.create_session()
-    notes = db_sess.query(Note).all()  # доделать
+    notes = db_sess.query(Note).filter(current_user.id == Note.user_id)  # доделать
     params = {
         'title': 'Notes',
         'notes': notes
     }
     return render_template('notes.html', **params)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    print(error)
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.route('/notes/<int:_id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(_id):
+    db_sess = db_session.create_session()
+    note = db_sess.get(Note, _id)
+    if note is None:
+        abort(404)
+    form = NoteForm()
+    if request.method == "GET":
+        return render_template('_base_form.html', title='Editing job', form=form)
+    if form.validate_on_submit() and request.method == 'POST':
+        form.populate_obj(note)
+        db_sess.merge(note)
+        db_sess.commit()
+        return redirect('/show/notes')
+
+
+@app.route('/notes_delete/<int:_id>')
+@login_required
+def jobs_delete(_id):
+    db_sess = db_session.create_session()
+    note = db_sess.get(Note, _id)
+    if note is None:
+        abort(404)
+    db_sess.delete(note)
+    db_sess.commit()
+    return redirect('/show/notes')
 
 
 if __name__ == '__main__':

@@ -37,6 +37,3 @@ class User(SqlAlchemyBase, UserMixin):
     @property
     def fullname(self) -> str:
         return f'{self.name} {self.surname}'
-
-    def is_admin(self) -> bool:
-        return self.id == 1
