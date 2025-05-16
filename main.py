@@ -10,6 +10,7 @@ db_session.global_init("db/database.sqlite")
 from data.users import User
 from data.notes import Note
 from api import notes as notes_api
+from api import users as users_api
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -169,4 +170,5 @@ def change_password():
 if __name__ == '__main__':
     app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=365)
     app.register_blueprint(notes_api.blueprint)
+    app.register_blueprint(users_api.blueprint)
     app.run(port=8080, host='127.0.0.1', debug=True)
