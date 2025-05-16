@@ -23,7 +23,7 @@ def get_notes(_login: str, _password: str):
         return make_response(jsonify({'error': 'Unauthorized'}), 403)
     notes = db_sess.query(Note).filter(User.id == Note.user_id)
     return jsonify({
-        'jobs': [note.to_dict(only=NOTE_ATTRS) for note in notes]
+        'notes': [note.to_dict(only=NOTE_ATTRS) for note in notes]
     })
 
 
@@ -35,12 +35,12 @@ def get_one_note(_login: str, _password: str, _id: int):
         return make_response(jsonify({'error': 'Unauthorized'}), 403)
     note = db_sess.query(Note).get(_id)
     return jsonify({
-        'jobs': note.to_dict(only=NOTE_ATTRS)
+        'notes': note.to_dict(only=NOTE_ATTRS)
     })
 
 
 @blueprint.route('/api/<string:_login>/<string:_password>/notes/<int:_id>', methods=['DELETE'])
-def delete_job(_login: str, _password: str, _id: int):
+def delete_note(_login: str, _password: str, _id: int):
     db_sess = db_session.create_session()
     user = db_sess.query(User).filter(User.email == _login).first()
     if not user.check_password(_password):

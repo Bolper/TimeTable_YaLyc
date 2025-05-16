@@ -19,7 +19,7 @@ class Note(SqlAlchemyBase, SerializerMixin):
     user_id = sa.Column(sa.Integer, sa.ForeignKey("users.id"))
 
     def __str__(self) -> str:
-        return f'<job {self.id}: {self.job}>'
+        return f'<note {self.id}: {self.name}>'
 
     def __repr__(self) -> str:
         return self.__str__()

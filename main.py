@@ -16,7 +16,7 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-from forms import LoginForm, RegisterForm, NoteForm
+from forms import LoginForm, RegisterForm, NoteForm, ChangePasswordForm
 
 
 @login_manager.user_loader
@@ -61,8 +61,6 @@ def reqister():
             surname=form.surname.data,
             name=form.name.data,
             age=form.age.data,
-            position=form.position.data,
-            speciality=form.speciality.data,
             address=form.address.data,
             email=form.email.data
         )
@@ -85,7 +83,7 @@ def logout():
 def add_notes():
     form = NoteForm()
     if request.method == 'GET':
-        return render_template('_base_form.html', title='Adding job', form=form)
+        return render_template('_base_form.html', title='Adding note', form=form)
     db_sess = db_session.create_session()
     if form.validate_on_submit() and request.method == 'POST':
         note = Note(
@@ -95,7 +93,7 @@ def add_notes():
         db_sess.merge(note)
         db_sess.commit()
         return redirect('/show/notes')
-    return render_template('_base_form.html', title='Adding job', form=form)
+    return render_template('_base_form.html', title='Adding note', form=form)
 
 
 @app.route('/show/notes')
@@ -116,6 +114,12 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
+@app.errorhandler(403)
+def not_found(error):
+    print(error)
+    return make_response(jsonify({'error': 'Bad old password'}), 403)
+
+
 @app.route('/notes/<int:_id>', methods=['GET', 'POST'])
 @login_required
 def edit_news(_id):
@@ -125,7 +129,7 @@ def edit_news(_id):
         abort(404)
     form = NoteForm()
     if request.method == "GET":
-        return render_template('_base_form.html', title='Editing job', form=form)
+        return render_template('_base_form.html', title='Editing note', form=form)
     if form.validate_on_submit() and request.method == 'POST':
         form.populate_obj(note)
         db_sess.merge(note)
@@ -135,7 +139,7 @@ def edit_news(_id):
 
 @app.route('/notes_delete/<int:_id>')
 @login_required
-def jobs_delete(_id):
+def notes_delete(_id):
     db_sess = db_session.create_session()
     note = db_sess.get(Note, _id)
     if note is None:
@@ -143,6 +147,23 @@ def jobs_delete(_id):
     db_sess.delete(note)
     db_sess.commit()
     return redirect('/show/notes')
+
+
+@app.route('/user/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    db_sess = db_session.create_session()
+    user = db_sess.get(User, current_user.id)
+    form = ChangePasswordForm()
+    if request.method == "GET":
+        return render_template('_base_form.html', title='Change password', form=form)
+    if form.validate_on_submit() and request.method == 'POST':
+        if not user.check_password(form.old_password.data):
+            abort(403)
+        user.set_password(form.new_password.data)
+        db_sess.merge(user)
+        db_sess.commit()
+        return redirect('/')
 
 
 if __name__ == '__main__':

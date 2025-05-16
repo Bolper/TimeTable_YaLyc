@@ -14,8 +14,6 @@ class User(SqlAlchemyBase, UserMixin):
     surname = sa.Column(sa.String, nullable=True)
     name = sa.Column(sa.String, nullable=True)
     age = sa.Column(sa.Integer, nullable=True)
-    position = sa.Column(sa.String, nullable=True)
-    speciality = sa.Column(sa.String, nullable=True)
     address = sa.Column(sa.String, nullable=True)
     email = sa.Column(sa.String, index=True, unique=True, nullable=True)
     hashed_password = sa.Column(sa.String, nullable=True)
